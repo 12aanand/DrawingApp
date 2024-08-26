@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Anything</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #444;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-container {
+            border: 4px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+        }
+
+        canvas {
+            cursor: crosshair;
+            border-radius: 10px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        canvas:hover {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .controls button, 
+        .controls input[type="color"] {
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .controls button {
+            background-color: #5cb85c;
+            color: #fff;
+        }
+
+        .controls button:hover {
+            background-color: #4cae4c;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls input[type="color"] {
+            padding: 8px;
+            background-color: #fff;
+            border: 2px solid #ccc;
+        }
+
+        #clearButton {
+            background-color: #d9534f;
+        }
+
+        #clearButton:hover {
+            background-color: #c9302c;
+        }
+
+        #saveButton {
+            background-color: #0275d8;
+        }
+
+        #saveButton:hover {
+            background-color: #025aa5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Draw Anything</h1>
+    <div class="canvas-container">
+        <canvas id="drawingCanvas"></canvas>
+    </div>
+    <div class="controls">
+        <input type="color" id="colorPicker" value="#000000">
+        <button id="clearButton">Clear</button>
+        <button id="saveButton">Save</button>
+    </div>
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const context = canvas.getContext('2d');
+        const clearButton = document.getElementById('clearButton');
+        const saveButton = document.getElementById('saveButton');
+        const colorPicker = document.getElementById('colorPicker');
+
+        canvas.width = window.innerWidth * 0.8;
+        canvas.height = window.innerHeight * 0.6;
+
+        let isDrawing = false;
+        let x = 0;
+        let y = 0;
+        let strokeColor = colorPicker.value;
+
+        colorPicker.addEventListener('input', (e) => {
+            strokeColor = e.target.value;
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            x = e.offsetX;
+            y = e.offsetY;
+            isDrawing = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) {
+                drawLine(context, x, y, e.offsetX, e.offsetY, strokeColor);
+                x = e.offsetX;
+                y = e.offsetY;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        canvas.addEventListener('mouseout', () => {
+            isDrawing = false;
+        });
+
+        clearButton.addEventListener('click', () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        saveButton.addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'drawing.png';
+            link.click();
+        });
+
+        function drawLine(context, x1, y1, x2, y2, color) {
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 2;
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+            context.closePath();
+        }
+    </script>
+</body>
+</html>
